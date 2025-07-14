@@ -13,7 +13,7 @@ Then, plot the **empirical power function** for n = 20 as a function of lambda o
 
 ## 🔗 Report
 
-[Click here to view the full report (HTML)](mglej_projekt_hipotezy_EN.html)
+[Click here to view the full report (HTML)](https://matmgl.github.io/unbiased-test-exponential/mglej_projekt_hipotezy_EN.html)
 
 ---
 
