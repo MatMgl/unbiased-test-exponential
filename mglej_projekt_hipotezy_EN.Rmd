@@ -1,0 +1,329 @@
+---
+title: "Statistical Hypothesis Testing"
+subtitle: "Final Project"
+author: "Mateusz Mglej"
+date: 2025-01-30
+output: 
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: vignette
+    toc: yes
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{css echo=FALSE}
+body{
+  background-color: #ffffff
+}
+```
+
+```{r, results=FALSE, warning = FALSE, message = FALSE}
+library(nleqslv) # Package for solving nonlinear equations
+library(ggplot2)
+```
+
+## Theoretical Solution
+
+### Theorem
+
+Let $\Theta \subset \mathbb{R}$ and suppose $P_\theta$ has a density
+$f_\theta$ with respect to some fixed measure $\mu$, belonging to a
+one-dimensional exponential family of the form:
+
+$$
+f_\theta(x) = h(x)\exp\{C(\theta)T(x) - B(\theta)\}
+$$
+
+Define the sufficient statistic for $\theta$ as: $$
+S(\mathbf{X}) = \sum_{i=1}^n T(X_i)
+$$
+
+Then:
+
+-   For testing $H_0: \theta \in [\theta_a, \theta_b]$ versus
+    $H_1: \theta \notin [\theta_a, \theta_b]$, the test has the form: $$
+    \varphi(\mathbf{X}) =
+    \begin{cases}
+      1, & \text{if } S(\mathbf{X}) \notin [c_a, c_b] \\
+      0, & \text{if } S(\mathbf{X}) \in [c_a, c_b]
+    \end{cases}
+    $$ where constants $c_a, c_b$ are chosen so that: $$
+    \mathbb{E}_{\theta_a}[\varphi(\mathbf{X})] = \mathbb{E}_{\theta_b}[\varphi(\mathbf{X})] = \alpha
+    $$ This is the uniformly most powerful unbiased test.
+
+-   For testing $H_0: \theta = \theta_0$ versus
+    $H_1: \theta \neq \theta_0$, the test has the same form: $$
+    \varphi(\mathbf{X}) =
+    \begin{cases}
+      1, & \text{if } S(\mathbf{X}) \notin [c_a, c_b] \\
+      0, & \text{if } S(\mathbf{X}) \in [c_a, c_b]
+    \end{cases}
+    $$ with constants $c_a, c_b$ chosen so that: $$
+    \mathbb{E}_{\theta_0}[\varphi(\mathbf{X})] = \alpha, \quad
+    \mathbb{E}_{\theta_0}[\varphi(\mathbf{X}) S(\mathbf{X})] = \alpha \cdot \mathbb{E}_{\theta_0}[S(\mathbf{X})]
+    $$
+
+This test is also uniformly most powerful among all unbiased tests.
+
+
+### Our Test
+
+In our case, the exponential distribution belongs to the exponential
+family. The sufficient statistic is:\
+$T(X) = \sum_{i=1}^{n}X_i$
+
+We will test the hypothesis $H_0: \lambda = 4$ vs. $H_1: \lambda \neq 4$
+
+For simplicity, let $k = 1/\lambda$.\
+Then we have: $X_1, ..., X_n$ i.i.d. from $\text{Exp}(k)$, and the
+expected value is $1/k = \lambda$.
+
+The test has the form: $$
+\varphi(\mathbf{X}) =
+\begin{cases} 
+1, & \text{if } T(\mathbf{X}) \notin [a, b] \\
+0, & \text{if } T(\mathbf{X}) \in [a, b]
+\end{cases}
+$$ where constants $a, b$ are chosen such that: $$
+\mathbb{E}_{\theta_0}[\varphi(\mathbf{X})] = \alpha, \quad
+\mathbb{E}_{\theta_0}[\varphi(\mathbf{X}) T(\mathbf{X})] = \alpha \cdot \mathbb{E}_{\theta_0}[T(\mathbf{X})]
+$$
+
+------------------------------------------------------------------------
+
+### Distribution of the Test Statistic under the Null Hypothesis
+
+$X_1, ..., X_n$ is a random sample from $\text{Exp}(k)$.\
+Therefore, $T(X) = \sum_{i=1}^{n}X_i \sim \text{Gamma}(n, k)$
+
+------------------------------------------------------------------------
+
+### Finding the Constants $a, b$, with $a < b$
+
+#### First Condition
+
+$$
+\mathbb{E}_{\theta_0}[\varphi(\mathbf{X})] = \alpha
+$$
+
+$$
+1 \cdot P_{\theta_0}(T(X) \notin (a,b)) = \alpha
+$$
+
+$$
+P_{\theta_0}(T(X) \in (a,b)) = 1 - \alpha
+$$
+
+$$
+P_{\theta_0}(a < T(X) < b) = 1 - \alpha
+$$
+
+Under the null, $T(X) \sim \text{Gamma}(n, k)$, so:
+
+$$
+F_{\text{Gamma}(n, k)}(b) - F_{\text{Gamma}(n, k)}(a) = 1 - \alpha
+$$
+
+------------------------------------------------------------------------
+
+#### Second Condition
+
+$$
+\mathbb{E}_{\theta_0}[\varphi(\mathbf{X}) T(\mathbf{X})] = \alpha \cdot \mathbb{E}_{\theta_0}[T(\mathbf{X})]
+$$
+
+Assume $Y \sim \text{Gamma}(n, k)$. Then:
+
+$$
+f_Y(t) = \frac{k^n}{\Gamma(n)} t^{n-1} e^{-kt} \cdot \mathbb{1}_{(0, \infty)}(t)
+$$
+
+$$
+\mathbb{E}[Y] = \frac{n}{k}
+$$
+
+Right-hand side:
+
+$$
+\alpha \cdot \mathbb{E}_{\theta_0}[T(\mathbf{X})] = \alpha \cdot \frac{n}{k}
+$$
+
+Substitute into the second expectation:
+
+$$
+\mathbb{E}_{\theta_0}[\varphi(\mathbf{X}) T(\mathbf{X})] = \alpha \cdot \frac{n}{k}
+$$
+
+Written as an integral (omitting steps similar to the first condition):
+
+$$
+\int_{a}^{b} t \cdot t^{n-1} e^{-kt} \, dt = (1 - \alpha) \cdot \frac{n}{k} \cdot \frac{\Gamma(n)}{k^n}
+$$
+
+$$
+\int_{a}^{b} t^n e^{-kt} \, dt = (1 - \alpha) \cdot \frac{\Gamma(n+1)}{k^{n+1}}
+$$
+
+$$
+\int_{a}^{b} \frac{k^{n+1}}{\Gamma(n+1)} t^n e^{-kt} \, dt = 1 - \alpha
+$$
+
+$$
+F_{\text{Gamma}(n+1, k)}(b) - F_{\text{Gamma}(n+1, k)}(a) = 1 - \alpha
+$$
+
+------------------------------------------------------------------------
+
+### Final System of Equations
+
+We solve the following system numerically to find the constants $a, b$:
+
+$$
+\begin{cases} 
+F_{\text{Gamma}(n, k)}(b) - F_{\text{Gamma}(n, k)}(a) = 1 - \alpha \\
+F_{\text{Gamma}(n+1, k)}(b) - F_{\text{Gamma}(n+1, k)}(a) = 1 - \alpha
+\end{cases}
+$$
+
+
+## One-Sample Test
+
+### Parameters
+
+```{r}
+alpha <- 0.05
+n <- 20 
+
+# Null hypothesis parameter
+lambda <- 4
+k <- 1 / lambda
+
+# Parameter for the generated sample
+lambda2 <- 2
+k2 <- 1 / lambda2
+```
+
+Checking the distribution generators in R
+
+```{r}
+# Should be close to 1/5 = 0.2
+mean(rexp(1000, 5))
+
+# Should be close to 20/5 = 4
+mean(rgamma(1000, 20, 5))
+
+
+```
+
+Generating a sample and computing the test statistic
+
+```{r}
+X <- rexp(n, k2)
+T <- sum(X)
+T
+```
+
+Finding the constants $a,b$
+
+```{r}
+uklad <- function(rownania){
+  a <- rownania[1]
+  b <- rownania[2]
+  
+  eq1 <- pgamma(b, n+1, k) - pgamma(a, n+1, k) - (1 - alpha)
+  eq2 <- pgamma(b, n, k) - pgamma(a, n, k) - (1 - alpha)
+  
+  c(eq1, eq2)
+}
+
+# Initial guess near the mean
+m <- n / k
+
+solution <- nleqslv(c(m - 10, m + 10), uklad)
+solution$x
+
+a <- solution$x[1]
+b <- solution$x[2]
+
+```
+
+Does the test statistic fall outside the critical region?
+
+```{r}
+T
+T < a | T > b
+```
+
+## Empirical Power for Given Parameters
+
+Simulation Setup
+
+```{r}
+MC = 1000000
+
+alpha <- 0.05
+lamdba <- 4
+k <- 1 / lamdba
+n <- 20
+
+# Lambda values for the power curve
+lamdamoc <- seq(2, 6, by = 0.05)
+
+```
+
+Finding constants $a,b$ again
+
+```{r}
+uklad <- function(rownania){
+  a <- rownania[1]
+  b <- rownania[2]
+  
+  eq1 <- pgamma(b, n+1, k) - pgamma(a, n+1, k) - (1 - alpha)
+  eq2 <- pgamma(b, n, k) - pgamma(a, n, k) - (1 - alpha)
+  
+  c(eq1, eq2)
+}
+
+m <- n / k
+
+solution <- nleqslv(c(m - 10, m + 10), uklad)
+solution$x
+
+a <- solution$x[1]
+b <- solution$x[2]
+
+```
+
+Running the Monte Carlo Simulation for each $\lambda$ 
+
+```{r}
+empmoc <- c()
+
+for(i in 1:length(lamdamoc)){
+  TMC <- c()
+  for(j in 1:MC){
+    X <- rexp(n, 1 / lamdamoc[i])
+    TMC[j] <- sum(X)
+  }
+  empmoc[i] <- sum(TMC < a | TMC > b) / MC
+}
+
+```
+
+Plotting the Empirical Power as a Function of $\lambda$
+
+```{r}
+df <- data.frame(lamdamoc, empmoc)
+
+ggplot(df, aes(x = lamdamoc, y = empmoc)) +
+  geom_hline(yintercept = 0.05, color = "darkred", linewidth = 1) +
+  geom_point(color = "darkblue") +
+  theme_minimal() +
+  labs(x = "Lambda", y = "Empirical Power", title = "Power Curve") +
+  scale_y_continuous(limits = c(0, max(df$empmoc, na.rm = TRUE)))
+
+
+
+```
