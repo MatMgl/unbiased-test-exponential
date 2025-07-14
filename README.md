@@ -4,18 +4,16 @@ This repository contains a final project for the course **Testing Statistical Hy
 
 ## 📝 Project Task
 
-Let \( X_1, ..., X_n \) be a simple random sample from an exponential distribution with expected value \( \lambda \).
+Let X₁, ..., Xₙ be a simple random sample from an exponential distribution with expected value lambda.
 
-Construct a test of level \( \alpha = 0.05 \), which is the **most powerful among all unbiased tests** for the null hypothesis:  
-\[
-H_0: \lambda = 4 \quad \text{vs} \quad H_1: \lambda \neq 4
-\]
+Construct a test of size α = 0.05 that is the **most powerful among all unbiased tests** for the null hypothesis:  
+**H₀: lambda = 4** versus **H₁: lambda ≠ 4**
 
-Then, plot the **empirical power function** for \( n = 20 \) as a function of \( \lambda \) over the interval \( [2, 6] \).
+Then, plot the **empirical power function** for n = 20 as a function of lambda over the interval [2, 6].
 
 ## 🔗 Report
 
-[Click here to view the full report (HTML)](link-do-pliku.html)
+[Click here to view the full report (HTML)](link-to-output.html)
 
 ---
 
